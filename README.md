@@ -1,7 +1,7 @@
 # Wishart Eigenvalue CDF
 
 An implementation of Algorithm 1 from [1] to compute the CDF of the largest
-eigenvalues of a standard Wishart-distributed matrix.
+eigenvalue of a standard Wishart-distributed matrix.
 
 ## References
 

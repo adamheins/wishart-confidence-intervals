@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import wishart
 from scipy.special import gamma, gammainc
+from scipy.optimize import minimize_scalar
 import matplotlib.pyplot as plt
 
 
@@ -103,6 +104,17 @@ def main():
             num_psd_samples += 1
 
     print(f"fraction of p.s.d. samples = {num_psd_samples / N}")
+
+    # given p, find α such that CDF(α) = p using basic gradient-free
+    # optimization
+    p = 0.5
+    def fun(α):
+        c = cdf(3, df, α)
+        return 0.5 * (c - p)**2
+
+    res = minimize_scalar(fun, bounds=(0, 10), method="bounded")
+    if res.success:
+        print(f"α = {res.x} for p = {p}")
 
 
 if __name__ == "__main__":
