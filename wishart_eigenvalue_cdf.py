@@ -11,6 +11,8 @@ from scipy.special import gamma, gammainc, loggamma
 from scipy.optimize import minimize_scalar
 import matplotlib.pyplot as plt
 
+import sympy
+
 
 def gammam(m, a):
     """Γ_m function defined in Sec. 2.1 of [1].
@@ -68,7 +70,7 @@ def compute_logKprime1(n_min, n_max):
 
     α = (n_max - n_min - 1) / 2
     logKprime = logK + (α * n_mat + n_mat * (n_mat + 1) / 2) * np.log(2)
-    for k in range(n_min):
+    for k in range(n_mat):
         logKprime += loggamma(α + k + 1)
     return logKprime
 
@@ -104,6 +106,26 @@ def compute_logKprime2(n_min, n_max):
     for k in range(n_min):
         logKprime += loggamma(α + k + 1)
     return logKprime
+
+
+def compute_Kprime2(n_min, n_max, α):
+    # compute K, the normalizing constant for the joint distribution of
+    # eigenvalues
+    K_nom = np.pi ** (n_min ** 2 / 2)
+    K_den = (
+        2 ** (n_min * n_max / 2) * gammam(n_min, n_max / 2) * gammam(n_min, n_min / 2)
+    )
+    K = K_nom / K_den
+
+    if n_min % 2 == 0:
+        n_mat = n_min
+    else:
+        n_mat = n_min + 1
+
+    K1 = K * 2 ** (α * n_mat + n_mat * (n_mat + 1) / 2)
+    for k in range(n_mat):
+        K1 *= gamma(α + k + 1)
+    return K1
 
 
 def max_eigval_cdf(p, df, x):
@@ -168,7 +190,7 @@ def max_eigval_cdf(p, df, x):
     A = A - A.T
     logKprime = compute_logKprime1(n_min, n_max)
     s, logabsdet = np.linalg.slogdet(A)
-    assert s > 0
+    assert s >= 0
     return np.exp(logKprime + 0.5 * logabsdet)
 
 
@@ -211,7 +233,12 @@ def eigval_interval_probability(p, df, a, b):
         return (n_max - n_min - 1) / 2 + l
 
     def g(l, x):
+        if np.isinf(x):
+            return 0
         return x ** α(l) * np.exp(-x)
+        # print(f"log = {α(l) * np.log(x) - x}")
+        # TODO still does not work
+        # return np.exp(α(l) * np.log(x) - x)
 
     for i in range(n_min - 1):
         for j in range(i, n_min - 1):
@@ -229,10 +256,15 @@ def eigval_interval_probability(p, df, a, b):
             A[i, -1] = gengammainc(αi, a / 2, b / 2)
 
     A = A - A.T
+    print(A)
     logKprime = compute_logKprime2(n_min, n_max)
     s, logabsdet = np.linalg.slogdet(A)
-    assert s > 0
+    assert s >= 0
     return np.exp(logKprime + 0.5 * logabsdet)
+
+
+def min_eigval_cdf(p, df, x):
+    return eigval_interval_probability(p, df, x, np.inf)
 
 
 def chiani_2017_table2():
@@ -245,6 +277,45 @@ def chiani_2017_table2():
     for n in [2, 5, 10]:
         prob = eigval_interval_probability(p=n, df=n, a=0, b=n)
         print(f"{n}  {prob}")
+
+
+def chiani_2017_fig1():
+    m = 400
+    s = 10
+    t = np.linspace(0, 0.1, 100)
+    bounds = (np.sqrt(m) - np.sqrt(s) - t * np.sqrt(m)) ** 2
+    probs = [min_eigval_cdf(s, m, bound) for bound in bounds]
+    print(bounds)
+    print(probs)
+    plt.plot(t, probs)
+    plt.show()
+
+
+def chiani_2014_fig3():
+    p = 5
+    xs = np.linspace(0, 70, 100)
+    plt.figure()
+    # for df in [5, 10, 15, 20, 25, 30, 35]:
+    for df in [5]:
+        probs = [eigval_interval_probability(p, df, 0, x) for x in xs]
+        plt.plot(xs, probs)
+    plt.xlabel("x")
+    plt.ylabel("CDF(x)")
+    plt.grid()
+    plt.show()
+
+
+def chiani_2014_fig4():
+    p = 500
+    df = 500
+    xs = np.linspace(1900, 2100, 100)
+    plt.figure()
+    probs = [max_eigval_cdf(p, df, x) for x in xs]
+    plt.plot(xs, probs)
+    plt.xlabel("x")
+    plt.ylabel("CDF(x)")
+    plt.grid()
+    plt.show()
 
 
 def main():
@@ -290,4 +361,6 @@ def main():
 
 if __name__ == "__main__":
     # chiani_2017_table2()
-    main()
+    # chiani_2017_fig1()
+    chiani_2014_fig3()
+    # main()
