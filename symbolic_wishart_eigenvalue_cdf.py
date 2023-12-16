@@ -40,12 +40,12 @@ def compute_Kprime2(n_min, n_max):
     # eigenvalues
     K_nom = sp.pi ** (n_min**2 / 2)
     K_den = (
-        2 ** (n_min * n_max / 2) * gammam(n_min, n_max / 2) * gammam(n_min, n_min / 2)
+        sp.Float(2) ** (n_min * n_max / 2) * gammam(n_min, n_max / 2) * gammam(n_min, n_min / 2)
     )
     K = K_nom / K_den
 
     α = (n_max - n_min - 1) / 2
-    K1 = K * 2 ** (α * n_min + n_min * (n_min + 1) / 2)
+    K1 = K * sp.Float(2) ** (α * n_min + n_min * (n_min + 1) / 2)
     for k in range(n_min):
         K1 *= sp.gamma(α + k + 1)
     return K1
@@ -137,7 +137,7 @@ def eigval_interval_probability(p, df, a, b):
             αi = α(i + 1)
             A[i, -1] = gengammainc(αi, a / 2, b / 2)
 
-    A = A - A.T
+    A = (A - A.T).evalf()
     Kprime = compute_Kprime2(n_min, n_max)
     return Kprime * sp.sqrt(sp.det(A))
 
@@ -155,7 +155,7 @@ def chiani_2017_table2():
     print("n  probability")
     for n in [2, 5, 10, 50, 100]:
         prob = eigval_interval_probability(p=n, df=n, a=0, b=n)
-        print(f"{n}  {prob}")
+        print(f"{n}  {prob.evalf()}")
 
 
 def chiani_2017_fig1():
@@ -172,10 +172,10 @@ def chiani_2017_fig1():
 
 def chiani_2014_fig3():
     p = 5
-    xs = np.linspace(0, 70, 100)
+    xs = sp.linspace(0, 70, 100)
     plt.figure()
     for df in [5, 10, 15, 20, 25, 30, 35]:
-        probs = [max_eigval_cdf(p, df, x) for x in xs]
+        probs = [max_eigval_cdf(p, df, sp.Float(x)) for x in xs]
         plt.plot(xs, probs)
     plt.xlabel("x")
     plt.ylabel("CDF(x)")
@@ -188,7 +188,7 @@ def chiani_2014_fig4():
     df = 500
     xs = np.linspace(1900, 2100, 100)
     plt.figure()
-    probs = [max_eigval_cdf(p, df, x) for x in xs]
+    probs = [max_eigval_cdf(p, df, sp.Float(x)) for x in xs]
     plt.plot(xs, probs)
     plt.xlabel("x")
     plt.ylabel("CDF(x)")
@@ -197,6 +197,6 @@ def chiani_2014_fig4():
 
 
 if __name__ == "__main__":
-    # chiani_2017_table2()
+    chiani_2017_table2()
     # chiani_2017_fig1()
-    chiani_2014_fig3()
+    # chiani_2014_fig4()

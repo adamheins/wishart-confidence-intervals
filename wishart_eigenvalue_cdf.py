@@ -236,9 +236,6 @@ def eigval_interval_probability(p, df, a, b):
         if np.isinf(x):
             return 0
         return x ** α(l) * np.exp(-x)
-        # print(f"log = {α(l) * np.log(x) - x}")
-        # TODO still does not work
-        # return np.exp(α(l) * np.log(x) - x)
 
     for i in range(n_min - 1):
         for j in range(i, n_min - 1):
@@ -256,7 +253,6 @@ def eigval_interval_probability(p, df, a, b):
             A[i, -1] = gengammainc(αi, a / 2, b / 2)
 
     A = A - A.T
-    print(A)
     logKprime = compute_logKprime2(n_min, n_max)
     s, logabsdet = np.linalg.slogdet(A)
     assert s >= 0
@@ -279,39 +275,13 @@ def chiani_2017_table2():
         print(f"{n}  {prob}")
 
 
-def chiani_2017_fig1():
-    m = 400
-    s = 10
-    t = np.linspace(0, 0.1, 100)
-    bounds = (np.sqrt(m) - np.sqrt(s) - t * np.sqrt(m)) ** 2
-    probs = [min_eigval_cdf(s, m, bound) for bound in bounds]
-    print(bounds)
-    print(probs)
-    plt.plot(t, probs)
-    plt.show()
-
-
 def chiani_2014_fig3():
     p = 5
     xs = np.linspace(0, 70, 100)
     plt.figure()
-    # for df in [5, 10, 15, 20, 25, 30, 35]:
-    for df in [5]:
+    for df in [5, 10, 15, 20, 25, 30, 35]:
         probs = [eigval_interval_probability(p, df, 0, x) for x in xs]
         plt.plot(xs, probs)
-    plt.xlabel("x")
-    plt.ylabel("CDF(x)")
-    plt.grid()
-    plt.show()
-
-
-def chiani_2014_fig4():
-    p = 500
-    df = 500
-    xs = np.linspace(1900, 2100, 100)
-    plt.figure()
-    probs = [max_eigval_cdf(p, df, x) for x in xs]
-    plt.plot(xs, probs)
     plt.xlabel("x")
     plt.ylabel("CDF(x)")
     plt.grid()
@@ -360,7 +330,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # chiani_2017_table2()
-    # chiani_2017_fig1()
-    chiani_2014_fig3()
-    # main()
+    chiani_2017_table2()
+    chiani_2014_figure3()
