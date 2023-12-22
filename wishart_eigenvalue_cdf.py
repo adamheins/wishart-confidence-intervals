@@ -6,6 +6,7 @@ References
 2. Chiani, 2014, doi: 10.1016/j.jmva.2014.04.002
 """
 import numpy as np
+from scipy.stats import wishart
 from scipy.special import gamma, gammainc
 from scipy.optimize import minimize_scalar
 import matplotlib.pyplot as plt
@@ -196,6 +197,7 @@ def max_eigval_quantile(p, df, prob, bound=100):
         The value ``x`` such that the probability that the largest eigenvalue
         is below ``x`` is ``prob``.
     """
+
     def fun(x):
         c = max_eigval_cdf(p, df, x)
         return 0.5 * (c - prob) ** 2
@@ -231,6 +233,7 @@ def min_eigval_quantile(p, df, prob, bound=100):
         The value ``x`` such that the probability that the smallest eigenvalue
         is below ``x`` is ``prob``.
     """
+
     def fun(x):
         c = min_eigval_cdf(p, df, x)
         return 0.5 * (c - prob) ** 2
@@ -254,7 +257,7 @@ def chiani_2017_table2():
         print(f"{n}  {prob}")
 
         # check the quantile function
-        assert(np.isclose(max_eigval_quantile(n, n, prob), n))
+        assert np.isclose(max_eigval_quantile(n, n, prob), n)
 
 
 def chiani_2014_figure3():
@@ -271,6 +274,39 @@ def chiani_2014_figure3():
     plt.show()
 
 
+def nonstandard_distribution():
+    """Example for probability of largest eigenvalue with non-standard Wishart."""
+    np.random.seed(0)
+
+    # setup the distribution
+    Σ = np.diag([1, 1, 2])
+    df = 3
+    W = wishart(df=df, scale=Σ)
+
+    # sample from W
+    N = 10000
+    As = W.rvs(size=N)
+
+    # bounds
+    a = 0
+    b = 10
+
+    # exact probability
+    prob = eigval_interval_probability(p=Σ.shape[0], df=df, a=a, b=b)
+
+    # sample-based probability
+    count = 0
+    for i in range(N):
+        α1 = np.min(np.linalg.eigvals(b * Σ - As[i]))
+        α2 = np.min(np.linalg.eigvals(As[i] - a * Σ))
+        if α1 >= 0 and α2 >= 0:
+            count += 1
+
+    print(f"exact  = {prob}")
+    print(f"sample = {count / N}")
+
+
 if __name__ == "__main__":
     chiani_2017_table2()
     chiani_2014_figure3()
+    nonstandard_distribution()
