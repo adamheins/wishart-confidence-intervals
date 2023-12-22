@@ -16,8 +16,8 @@ say, 10 by 10 or so.
 ## References
 
 * Chiani, M. (2017). "On the Probability That All Eigenvalues of Gaussian, Wishart,
- and Double Wishart Random Matrices Lie Within an Interval," in IEEE
- Transactions on Information Theory, vol. 63, no. 7, pp. 4521-4531, July
+ and Double Wishart Random Matrices Lie Within an Interval," in *IEEE
+ Transactions on Information Theory*, vol. 63, no. 7, pp. 4521-4531, July
  2017, doi:
  [10.1109/TIT.2017.2694846](https://doi.org/10.1109/TIT.2017.2694846),
  arxiv: [1502.04189](https://arxiv.org/abs/1502.04189).
