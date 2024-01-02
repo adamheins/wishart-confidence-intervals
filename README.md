@@ -5,14 +5,15 @@ the probability that the eigenvalues of a standard Wishart-distributed random
 matrix lie within a given interval. This immediately also gives us the
 cumulative density functions for the distributions of the minimum and maximum
 eigenvalues. In addition, we provide optimization routines to evaluate the
-associated quantile functions. See the accompanying [blog post](TODO).
+associated quantile functions. See the accompanying [blog
+post](https://adamheins.com/blog/wishart-confidence-intervals).
 
 ## Usage
 
 Use Python 3. Ensure you have the dependencies listed in `requirements.txt`
 (this is just numpy, scipy, and matplotlib), then run the script using
 ```
-python wishart_confidence_intervals.py
+python3 wishart_confidence_intervals.py
 ```
 By default, the script replicates a few results from Chiani's papers and runs
 an example of confidence bounds for non-standard Wishart matrices. Feel free
